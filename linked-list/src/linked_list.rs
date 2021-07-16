@@ -40,25 +40,27 @@ impl<T: std::fmt::Display> LinkedList<T> {
     }
 
     pub fn pop(&mut self, idx: Option<usize>) -> Option<T> {
-        let mut idxp = idx.unwrap_or(0);
+        let idxp = idx.unwrap_or(0);
         if self.length == 0 || idxp > self.length {
             return None;
         }
         let mut curr = &self.head;
-        let last= None;
-        let i = 0;
+        let mut last = None;
+        let mut i = 0;
+        
         while i < idxp {
             last = Some(curr);
-            curr = &curr.as_ref().unwrap().next;
+            curr = &curr.unwrap().as_ref().next;
             i+=1;
         }
+
         // We have last
         // We have next
         // We don't have last or next
         if idxp == 0 {
             match &curr.as_ref().unwrap().next {
                 Some(next) => {
-                    self.head = Some(next.as_ref());
+                    self.head = Some(*next);
                 },
                 None => {
                     self.head = None;
