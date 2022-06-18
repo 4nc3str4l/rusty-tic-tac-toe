@@ -1,8 +1,7 @@
 use std::vec::Vec;
 use nannou::prelude::*;
 
-#[derive(PartialEq)]
-#[derive(Clone, Copy)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum CellState {
     EMPTY = 0,
     CIRCLE = 1,
