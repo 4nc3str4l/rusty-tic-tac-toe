@@ -1,4 +1,5 @@
 use nannou::prelude::*;
+use nannou_egui::{egui, Egui};
 
 mod model;
 mod rendering;
@@ -9,7 +10,6 @@ use crate::{model::*, rendering::*, utils::*};
 fn main() {
     nannou::app(model)
         .update(update)
-        .simple_window(view)
         .run();
 }
 
@@ -43,6 +43,36 @@ fn update(app: &App, model: &mut Model, update: Update) {
             CellState::EMPTY => {},
         }
     }
+
+    // Update the UI
+    let egui = &mut model.egui;
+    let settings = &mut model.settings;
+    egui.set_elapsed_time(update.since_start);
+    let ctx = egui.begin_frame();
+
+    egui::Window::new("Settings").show(&ctx, |ui| {
+        // Resolution slider
+        ui.label("Resolution:");
+        ui.add(egui::Slider::new(&mut settings.resolution, 1..=40));
+
+        // Scale slider
+        ui.label("Scale:");
+        ui.add(egui::Slider::new(&mut settings.scale, 0.0..=1000.0));
+
+        // Rotation slider
+        ui.label("Rotation:");
+        ui.add(egui::Slider::new(&mut settings.rotation, 0.0..=360.0));
+
+        // Random color button
+        let clicked = ui.button("Random color").clicked();
+
+        if clicked {
+            settings.color = rgb(random(), random(), random());
+        }
+    });
+
+
+
 }
 
 fn set_cell_state(model: &mut Model, x: i32, y: i32, state: CellState) {
@@ -70,5 +100,20 @@ fn view(app: &App,  model: &Model, frame: Frame) {
 
     // Write to the window frame.
     draw.to_frame(app, &frame).unwrap();
+    model.egui.draw_to_frame(&frame).unwrap();
 }
 
+pub fn model(app: &App) -> Model {
+    let window_id = app
+        .new_window()
+        .view(view)
+        .raw_event(raw_window_event)
+        .build()
+        .unwrap();
+    let window = app.window(window_id).unwrap();
+    Model::new(&window)
+}
+
+fn raw_window_event(_app: &App, model: &mut Model, event: &nannou::winit::event::WindowEvent) {
+    model.egui.handle_raw_event(event);
+}
