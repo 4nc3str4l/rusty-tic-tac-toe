@@ -2,8 +2,8 @@ use nannou::prelude::*;
 
 pub fn mouse_to_cell(app: &App) -> (i32, i32) {
     let m_pos = app.mouse.position();
-    let (w_start_x, w_start_y) = win_start(&app);
-    let (w_dim_x, w_dim_y) = win_dim(&app);
+    let (w_start_x, w_start_y) = win_start(app);
+    let (w_dim_x, w_dim_y) = win_dim(app);
     for y in 0..3 {
         for x in 0..3 {
             let x0 = w_start_x + (w_dim_x / 3. * x as f32);
@@ -17,7 +17,7 @@ pub fn mouse_to_cell(app: &App) -> (i32, i32) {
             }
         }
     }
-    return (0, 0);
+    (0, 0)
 }
 
 pub fn in_range(x: f32, x0: f32, x1: f32) -> bool {

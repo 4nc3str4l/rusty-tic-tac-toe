@@ -26,7 +26,7 @@ fn update(app: &App, model: &mut Model, update: Update) {
 
 fn update_ingame(app: &App, model: &mut Model) {
     if app.mouse.buttons.left().is_down() {
-        let (x, y) = mouse_to_cell(&app);
+        let (x, y) = mouse_to_cell(app);
 
         let cell_state = (*(*model).state)[(y * 3 + x) as usize];
         if cell_state != CellState::Empty {
@@ -50,9 +50,9 @@ fn update_ingame(app: &App, model: &mut Model) {
             model.game_state = GameState::GameOver;
             model.winning_combination = combiantion;
             if winner == Player::PCircle {
-                model.p1_score += 1;
-            } else {
-                model.p2_score += 1;
+                model.cricle_score += 1;
+            } else if winner == Player::PCross {
+                model.cross_score += 1;
             }
         }
     }
@@ -70,25 +70,32 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.background().color(BLACK);
 
     if model.game_state != GameState::NotStarted {
-        let (x, y) = mouse_to_cell(&app);
+        let (x, y) = mouse_to_cell(app);
 
         if model.game_state == GameState::InGame {
-            highlight_cell(&draw, app, x, y, false);
+            highlight_cell(&draw, app, x, y, GameState::InGame);
         }
-        draw_grid(&draw, &app);
+        draw_grid(&draw, app);
 
         // Draw elements
         for i in 0..3 {
             for j in 0..3 {
                 let el = model.state.get(ij_to_idx(i, j)).unwrap();
-                draw_element(&draw, app, j as i32, i as i32, &el);
+                draw_element(&draw, app, j as i32, i as i32, el);
             }
         }
 
         if model.game_state == GameState::GameOver {
-            for c_idx in WINNER_COMBINATIONS[model.winning_combination as usize] {
-                let (x, y) = idx_to_ij(c_idx as usize);
-                highlight_cell(&draw, app, x as i32, y as i32, true);
+            if model.winning_combination != -1 {
+                for c_idx in WINNER_COMBINATIONS[model.winning_combination as usize] {
+                    let (x, y) = idx_to_ij(c_idx as usize);
+                    highlight_cell(&draw, app, x as i32, y as i32, GameState::GameOver);
+                }
+            } else {
+                for i in 0..9 {
+                    let (x, y) = idx_to_ij(i as usize);
+                    highlight_cell(&draw, app, x as i32, y as i32, GameState::Tie);
+                }
             }
         }
     }
@@ -132,9 +139,9 @@ fn render_gui(model: &mut Model, update: &Update) {
         } else if model.game_state == GameState::GameOver {
             ui.label("Score:");
             ui.label("Player 1:");
-            ui.label(model.p1_score);
+            ui.label(model.cricle_score);
             ui.label("Player 2:");
-            ui.label(model.p2_score);
+            ui.label(model.cross_score);
             let clicked = ui.button("Play Again").clicked();
             if clicked {
                 model.game_state = GameState::InGame;
@@ -157,8 +164,15 @@ fn check_winner(model: &Model) -> (Player, i8) {
         return (Player::PCross, p2_win);
     }
 
-    // If none of them won we can return -1
-    (Player::None, -1)
+    // If there is still an empty cell we can continue the game
+    for i in 0..9 {
+        if model.state[i] == CellState::Empty {
+            return (Player::None, -1);
+        }
+    }
+
+    // If there is no empty cell rust return Tie as the state
+    (Player::Tie, -1)
 }
 
 fn check_game_for_player(model: &Model, target_state: CellState) -> i8 {

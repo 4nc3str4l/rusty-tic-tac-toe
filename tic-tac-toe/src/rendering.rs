@@ -8,7 +8,7 @@ pub fn draw_grid(draw: &Draw, app: &App) {
 
     let x_third: f32 = (window_dimensions.0 as f32) / 3.0;
     let y_third: f32 = (window_dimensions.1 as f32) / 3.0;
-    let (x_0, y_0) = win_start(&app);
+    let (x_0, y_0) = win_start(app);
 
     // vertical lines
     let start_point = pt2(x_0 + x_third, y_0);
@@ -45,11 +45,11 @@ pub fn draw_grid(draw: &Draw, app: &App) {
         .color(WHITE);
 }
 
-pub fn highlight_cell(draw: &Draw, app: &App, x: i32, y: i32, is_winning: bool) {
+pub fn highlight_cell(draw: &Draw, app: &App, x: i32, y: i32, g_state: GameState) {
     let win_d = app.main_window().inner_size_pixels();
     let x_third: f32 = (win_d.0 as f32) / 3.;
     let y_third: f32 = (win_d.1 as f32) / 3.;
-    let (x_0, y_0) = win_start(&app);
+    let (x_0, y_0) = win_start(app);
 
     let rect = draw
         .rect()
@@ -58,10 +58,12 @@ pub fn highlight_cell(draw: &Draw, app: &App, x: i32, y: i32, is_winning: bool) 
         .w(x_third)
         .h(y_third);
 
-    if is_winning {
+    if g_state == GameState::GameOver {
         rect.rgba(0.0, 0.5, 0.0, 0.1);
-    } else {
+    } else if g_state == GameState::InGame {
         rect.rgba(1.0, 1.0, 1.0, 0.1);
+    } else {
+        rect.rgba(0.0, 0.0, 0.5, 0.1);
     }
 }
 
@@ -73,7 +75,7 @@ pub fn draw_element(draw: &Draw, app: &App, x: i32, y: i32, cell_state: &CellSta
     let win_d = app.main_window().inner_size_pixels();
     let x_third: f32 = (win_d.0 as f32) / 3.;
     let y_third: f32 = (win_d.1 as f32) / 3.;
-    let (x_0, y_0) = win_start(&app);
+    let (x_0, y_0) = win_start(app);
 
     let dim = f32::min(x_third, y_third);
 

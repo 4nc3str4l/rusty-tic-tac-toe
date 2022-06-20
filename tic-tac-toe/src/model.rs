@@ -14,6 +14,7 @@ pub enum GameState {
     NotStarted = 0,
     InGame = 1,
     GameOver = 2,
+    Tie = 3,
 }
 
 #[derive(PartialEq, Clone, Copy)]
@@ -21,14 +22,15 @@ pub enum Player {
     None = 0,
     PCircle = 1,
     PCross = 2,
+    Tie = 3,
 }
 
 pub struct Model {
     pub state: Vec<CellState>,
     pub player: CellState,
     pub egui: Egui,
-    pub p1_score: u16,
-    pub p2_score: u16,
+    pub cricle_score: u16,
+    pub cross_score: u16,
     pub game_state: GameState,
     pub winning_combination: i8,
     pub should_clear_state: bool,
@@ -45,8 +47,8 @@ impl Model {
             state: game_state,
             player: CellState::Circle,
             egui: Egui::from_window(window),
-            p1_score: 0,
-            p2_score: 0,
+            cricle_score: 0,
+            cross_score: 0,
             game_state: GameState::NotStarted,
             winning_combination: -1,
             should_clear_state: false,
