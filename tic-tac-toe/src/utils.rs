@@ -1,6 +1,5 @@
 use nannou::prelude::*;
 
-
 pub fn mouse_to_cell(app: &App) -> (i32, i32) {
     let m_pos = app.mouse.position();
     let (w_start_x, w_start_y) = win_start(&app);
@@ -33,4 +32,12 @@ pub fn win_start(app: &App) -> (f32, f32) {
 pub fn win_dim(app: &App) -> (f32, f32) {
     let win_d = app.main_window().inner_size_pixels();
     (win_d.0 as f32, win_d.1 as f32)
+}
+
+pub fn ij_to_idx(i: usize, j: usize) -> usize {
+    i * 3 + j
+}
+
+pub fn idx_to_ij(idx: usize) -> (usize, usize) {
+    (idx % 3, idx / 3)
 }

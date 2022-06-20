@@ -1,48 +1,66 @@
-use std::vec::Vec;
 use nannou::prelude::*;
-use nannou_egui::{egui, Egui};
-
+use nannou_egui::Egui;
+use std::vec::Vec;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum CellState {
-    EMPTY = 0,
-    CIRCLE = 1,
-    CROSS = 2
+    Empty = 0,
+    Circle = 1,
+    Cross = 2,
 }
 
-pub struct Settings {
-    pub resolution: u32,
-    pub scale: f32,
-    pub rotation: f32,
-    pub color: Srgb<u8>,
-    pub position: Vec2,
+#[derive(PartialEq, Clone, Copy)]
+pub enum GameState {
+    NotStarted = 0,
+    InGame = 1,
+    GameOver = 2,
+}
+
+#[derive(PartialEq, Clone, Copy)]
+pub enum Player {
+    None = 0,
+    PCircle = 1,
+    PCross = 2,
 }
 
 pub struct Model {
     pub state: Vec<CellState>,
     pub player: CellState,
     pub egui: Egui,
-    pub settings: Settings,
+    pub p1_score: u16,
+    pub p2_score: u16,
+    pub game_state: GameState,
+    pub winning_combination: i8,
+    pub should_clear_state: bool,
 }
 
 impl Model {
     pub fn new(window: &Window) -> Self {
         let mut game_state: Vec<CellState> = Vec::new();
         for _ in 0..9 {
-            game_state.push(CellState::EMPTY);
+            game_state.push(CellState::Empty);
         }
-        return Model { state: game_state,
-                       player: CellState::CIRCLE,
-                       egui: Egui::from_window(window),
-                       settings: Settings {
-                            resolution: 10,
-                            scale: 200.0,
-                            rotation: 0.0,
-                            color: WHITE,
-                            position: vec2(0.0, 0.0),
-                        },
-                    }
+
+        Model {
+            state: game_state,
+            player: CellState::Circle,
+            egui: Egui::from_window(window),
+            p1_score: 0,
+            p2_score: 0,
+            game_state: GameState::NotStarted,
+            winning_combination: -1,
+            should_clear_state: false,
+        }
     }
 }
 
-
+pub const WINNER_COMBINATIONS: [[u8; 3]; 8] = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+];
